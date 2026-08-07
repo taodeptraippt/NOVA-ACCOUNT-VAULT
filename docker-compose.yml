@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nova_vault_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=nova_vault_super_secret_jwt_key_2026_change_in_production
+      - CREDENTIAL_ENCRYPTION_KEY=Z083a216c3NldmVudGVlbmdlbmVyYXRlZHZhdWx0a2V5MjAyNg==
+      - DATABASE_URL=sqlite:///./nova_vault.db
+      - CORS_ORIGINS=*
+    volumes:
+      - ./backend/nova_vault.db:/app/nova_vault.db
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: nova_vault_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: always
