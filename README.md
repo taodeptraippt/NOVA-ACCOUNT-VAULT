@@ -2,64 +2,81 @@
 
 Web app quản lý tài khoản nội bộ cho đội ngũ vận hành NOVA. Tối ưu cho tốc độ cực cao, mã hóa an toàn, tự động sinh Username/Password dễ đọc và giao diện Dark Gaming chuyên nghiệp.
 
+> Phiên bản này được **chuyển đổi sang Node.js (Next.js API Routes)** để chạy được trên panel Pterodactyl **Nodejs 24** (chỉ 1 container, không cần Python/Docker).
+
 ---
 
-## 🚀 Khởi Chạy Local (Nhanh Nhất)
+## 🏗 Kiến trúc (Node.js — Pterodactyl compatible)
 
-### 1. Khởi chạy Backend (FastAPI)
-```bash
-cd backend
-pip install -r requirements.txt
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
-```
+- **Frontend + Backend**: Next.js 14 (App Router) — chạy trên 1 container Node duy nhất.
+- **Backend**: Next.js API Routes (`src/app/api/**`) thay thế FastAPI.
+- **Database**: SQLite (module `node:sqlite` built-in trong Node 22+) — file nằm tại `data/nova_vault.db` (persistent).
+- **Bảo mật** (dùng `node:crypto` built-in — không cần native dep):
+  - Hash mật khẩu đăng nhập: **scrypt**
+  - Mã hóa mật khẩu vault: **AES-256-GCM** tại lưu trữ
+  - Token phiên: **JWT** (HMAC-SHA256)
+- **Backup**: Nút **"Backup .txt"** trong header → tải toàn bộ tài khoản (kèm mật khẩu đã giải mã) ra file `.txt` phòng khi sập web vẫn giữ được dữ liệu.
 
-### 2. Khởi chạy Frontend (Next.js)
+---
+
+## 🚀 Khởi chạy Local
+
 ```bash
-cd frontend
 npm install
 npm run dev
 ```
-Mở trình duyệt: `http://localhost:3000` (Truy cập từ điện thoại: `http://<IP_LAPTOP>:3000`)
+
+Mở trình duyệt: `http://localhost:3000`
 
 ---
 
-## 🌐 Hướng Dẫn Up Lên Host / Production Deployment
+## 🌐 Deploy lên Panel Pterodactyl (PikaMC / fusion.pikamc.vn)
 
-### Cách 1: Chạy bằng Docker Compose trên VPS (Khuyên dùng - Đơn giản nhất)
-Nếu bạn có VPS Ubuntu/Linux:
-1. Copy toàn bộ thư mục code lên VPS.
-2. Chạy 1 lệnh duy nhất:
-   ```bash
-   docker-compose up -d --build
-   ```
-3. Web App sẽ chạy ngay tại `http://<IP_VPS>:3000` và Backend tại `http://<IP_VPS>:8000`.
+### Cấu hình panel
+- **Docker Image**: `Nodejs 24`
+- **Main File**: `server.js`
+- **Startup**: Lệnh mặc định (`Main file + npm install`) — panel sẽ chạy `npm install` rồi `node server.js`.
 
----
+### Các bước
+1. Push toàn bộ repo này lên GitHub (repo gốc / hoặc dùng Git Repo Address + Access Token trên panel).
+2. Panel clone code vào `/home/container`.
+3. Panel chạy `npm install`.
+4. Panel chạy `node server.js`:
+   - Nếu chưa có build, `server.js` tự chạy `next build` lần đầu.
+   - Rồi start Next.js production trên port `3000` (hoặc `PORT` nếu set).
+5. Truy cập: **`http://fusion.pikamc.vn:25737`** (port 25737 của panel).
 
-### Cách 2: Deploy Miễn Phí trên Cloud (Vercel + Render)
+> **Lưu ý dữ liệu:** SQLite DB nằm tại `data/nova_vault.db` trong thư mục `/home/container` nên sẽ được **giữ nguyên** giữa các lần restart. Nên bấm **Backup .txt** định kỳ để phòng khi sập.
 
-#### A. Frontend Deploy lên Vercel (Miễn phí)
-1. Đẩy code `frontend/` lên GitHub repository.
-2. Truy cập [Vercel.com](https://vercel.com) -> New Project -> Import GitHub repository.
-3. Cấu hình Build Command: `npm run build`
-4. Thêm Environment Variable: `NEXT_PUBLIC_API_BASE_URL` = `https://<your-backend-render-url>.onrender.com/api`
-5. Bấm **Deploy**.
-
-#### B. Backend Deploy lên Render.com (Miễn phí)
-1. Đẩy code `backend/` lên GitHub repository.
-2. Truy cập [Render.com](https://render.com) -> New Web Service -> Kết nối Repository.
-3. Settings:
-   - **Environment**: Python 3
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port 8000`
-4. Set Environment Variables:
-   - `SECRET_KEY` = `<Chuỗi-Bảo-Mật-JWT>`
-   - `CREDENTIAL_ENCRYPTION_KEY` = `Z083a216c3NldmVudGVlbmdlbmVyYXRlZHZhdWx0a2V5MjAyNg==`
-   - `CORS_ORIGINS` = `*`
-5. Bấm **Create Web Service**.
+### Environment variables (tùy chọn, set trên panel)
+| Biến | Mô tả | Mặc định |
+|------|-------|----------|
+| `SECRET_KEY` | Khóa JWT | `nova_vault_super_secret_jwt_key_2026_change_in_production` |
+| `CREDENTIAL_ENCRYPTION_KEY` | Khóa mã hóa mật khẩu vault | `nova_vault_encryption_master_key_2026_fallback` |
+| `PORT` | Cổng app | `3000` |
+| `DATA_DIR` | Thư mục lưu DB | `./data` |
+| `DATABASE_PATH` | Đường dẫn file DB | `./data/nova_vault.db` |
 
 ---
 
 ## 🔐 Tài Khoản Đăng Nhập Mặc Định
 - **Admin**: `admin@nova.vault` / Mật khẩu: `admin123`
 - **Worker**: `worker@nova.vault` / Mật khẩu: `worker123`
+
+---
+
+## 📁 Cấu trúc thư mục
+```
+├── server.js                 # Main file cho panel (build + start)
+├── package.json
+├── next.config.mjs
+├── src/
+│   ├── app/
+│   │   ├── api/              # Backend (API Routes)
+│   │   │   ├── auth/login|me|logout/route.ts
+│   │   │   └── accounts/...  # CRUD, stats, generate, export
+│   │   ├── login/page.tsx
+│   │   └── page.tsx
+│   ├── components/           # UI components
+│   └── lib/                  # db, security, password, auth, api
+└── data/nova_vault.db        # SQLite (tự tạo, persistent)
