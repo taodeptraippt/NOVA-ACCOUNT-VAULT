@@ -12,8 +12,10 @@ const { execSync, spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = process.env.PORT || 3000;
-const HOST = '0.0.0.0';
+// On Pterodactyl the allocated external port is exposed via SERVER_PORT.
+// Prefer SERVER_PORT, then PORT, then default 3000.
+const PORT = process.env.SERVER_PORT || process.env.PORT || 3000;
+const HOST = process.env.SERVER_IP || '0.0.0.0';
 
 // Path to the Next.js CLI entry (present after `npm install`).
 const NEXT_BIN = path.join(__dirname, 'node_modules', 'next', 'dist', 'bin', 'next');

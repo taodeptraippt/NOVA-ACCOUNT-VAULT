@@ -55,6 +55,17 @@ Mở trình duyệt: `http://localhost:3000`
 - Đã fix: `server.js` giờ gọi trực tiếp CLI qua `node node_modules/next/dist/bin/next` (build & start) — **không phụ thuộc quyền của `.bin`**, nên chạy được trên panel.
 - Nếu panel vẫn báo lỗi cũ sau khi code mới, hãy **xóa sạch thư mục `/home/container`** (hoặc ít nhất là `node_modules` và `.next`) rồi deploy lại để tránh giữ lại bản cũ.
 
+**"Your local changes ... would be overwritten by merge" / git pull Aborting**
+- Nguyên nhân: panel bật **Auto Update** (chạy `git pull` khi khởi động) nhưng bạn upload file trực tiếp lên panel → xung đột với Git, khiến `git pull` abort và **code mới KHÔNG được cập nhật**.
+- Cách xử lý (chọn 1):
+  - **Cách A**: Tắt **Auto Update** trên panel (đặt `Auto Update = 0`), rồi **upload toàn bộ code mới** lên panel qua File Manager (giải nén đè lên `/home/container`).
+  - **Cách B**: Nếu dùng Git, đừng upload file trực tiếp. Đảm bảo bạn đã **commit + push** mọi thay đổi vào repo `main`, rồi để panel tự pull. Nếu panel đang bị xung đột, hãy xóa sạch `/home/container` rồi reinstall từ Git.
+
+**"ERR_CONNECTION_TIMED_OUT" khi truy cập `fusion.pikamc.vn:25737`**
+- Nguyên nhân: server nghe sai cổng. Panel Pterodactyl cấp port ngoài qua biến **`SERVER_PORT`** (ở đây là `25737`). Bản `server.js` cũ chỉ đọc `PORT`/3000 nên server nghe 3000 → không ai kết nối được.
+- Đã fix: `server.js` giờ ưu tiên `SERVER_PORT` (rồi `PORT`, rồi 3000). **Đảm bảo bạn đã đưa bản `server.js` mới này lên panel** (nhớ xử lý lỗi git pull ở trên trước).
+- Sau khi server chạy, log sẽ hiện: `Starting Next.js on 0.0.0.0:25737` (đúng port panel cấp).
+
 **Nhớ**:
 - `Main File` = `server.js`
 - `Docker Image` = `Nodejs 24`
