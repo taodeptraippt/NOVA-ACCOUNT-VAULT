@@ -20,7 +20,17 @@ const HOST = process.env.SERVER_IP || '0.0.0.0';
 // Path to the Next.js CLI entry (present after `npm install`).
 const NEXT_BIN = path.join(__dirname, 'node_modules', 'next', 'dist', 'bin', 'next');
 
+// Disable telemetry to reduce noise/overhead.
+process.env.NEXT_TELEMETRY_DISABLED = '1';
+
 // Ensure a .next build exists; if not, build it first.
+//
+// TIP: On low-RAM Pterodactyl containers, `next build` can fail with
+// "spawn /usr/local/bin/node EAGAIN" because it forks one worker per CPU.
+// The most reliable fix is to BUILD LOCALLY and upload the `.next` folder
+// together with the source (and keep it in the archive/File Manager). When
+// `.next` exists, this block is skipped entirely, so the panel just starts
+// the prebuilt app without doing a heavy build.
 const nextDir = path.join(__dirname, '.next');
 if (!fs.existsSync(nextDir) || !fs.existsSync(path.join(nextDir, 'BUILD_ID'))) {
   console.log('[server.js] No production build found. Running `next build`...');
