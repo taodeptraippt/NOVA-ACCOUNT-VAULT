@@ -105,6 +105,7 @@ export const AccountTable: React.FC<AccountTableProps> = ({
             <th className="py-3.5 px-4">ID</th>
             <th className="py-3.5 px-4">USERNAME</th>
             <th className="py-3.5 px-4">STATUS</th>
+            <th className="py-3.5 px-4">GHI CHÚ</th>
             <th className="py-3.5 px-4">CREATED</th>
             <th className="py-3.5 px-4 text-right">ACTION</th>
           </tr>
@@ -117,6 +118,9 @@ export const AccountTable: React.FC<AccountTableProps> = ({
                 {acc.username}
               </td>
               <td className="py-3.5 px-4">{statusBadge(acc.status)}</td>
+              <td className="py-3.5 px-4 text-xs text-[#8993A4] max-w-[200px] truncate" title={acc.notes || ''}>
+                {acc.notes || <span className="text-[#8993A4]/50 italic">—</span>}
+              </td>
               <td className="py-3.5 px-4 text-xs text-[#8993A4] font-mono">
                 {formatDate(acc.created_at)}
               </td>
