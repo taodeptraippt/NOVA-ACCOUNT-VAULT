@@ -48,6 +48,18 @@ Mở trình duyệt: `http://localhost:3000`
 
 > **Lưu ý dữ liệu:** SQLite DB nằm tại `data/nova_vault.db` trong thư mục `/home/container` nên sẽ được **giữ nguyên** giữa các lần restart. Nên bấm **Backup .txt** định kỳ để phòng khi sập.
 
+### ⚠️ Lỗi thường gặp & cách xử lý
+
+**"sh: 1: next: Permission denied" / Exit code 127**
+- Nguyên nhân: `npx next` thất bại vì file `node_modules/.bin/next` không có quyền thực thi trên panel.
+- Đã fix: `server.js` giờ gọi trực tiếp CLI qua `node node_modules/next/dist/bin/next` (build & start) — **không phụ thuộc quyền của `.bin`**, nên chạy được trên panel.
+- Nếu panel vẫn báo lỗi cũ sau khi code mới, hãy **xóa sạch thư mục `/home/container`** (hoặc ít nhất là `node_modules` và `.next`) rồi deploy lại để tránh giữ lại bản cũ.
+
+**Nhớ**:
+- `Main File` = `server.js`
+- `Docker Image` = `Nodejs 24`
+- Không bật "Custom Startup" nếu không rõ, cứ để lệnh mặc định (tự chạy `npm install` + `node server.js`).
+
 ### Environment variables (tùy chọn, set trên panel)
 | Biến | Mô tả | Mặc định |
 |------|-------|----------|
