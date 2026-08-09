@@ -2,15 +2,6 @@ export async function copyTextToClipboard(text: string): Promise<boolean> {
   if (typeof window === 'undefined') return false;
 
   try {
-    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-      await navigator.clipboard.writeText(text);
-      return true;
-    }
-  } catch {
-    // Fall back below for restricted or non-secure environments.
-  }
-
-  try {
     const textArea = document.createElement('textarea');
     textArea.value = text;
     textArea.setAttribute('readonly', '');
@@ -23,8 +14,19 @@ export async function copyTextToClipboard(text: string): Promise<boolean> {
 
     const copied = document.execCommand('copy');
     document.body.removeChild(textArea);
-    return copied;
+    if (copied) return true;
   } catch {
-    return false;
+    // Fall through to clipboard API fallback below.
   }
+
+  try {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    // Ignore and return false below.
+  }
+
+  return false;
 }
