@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Eye, EyeOff, Copy, Check, RefreshCw, Save, Archive } from 'lucide-react';
+import { X, Eye, EyeOff, Copy, Check, RefreshCw, Save, Archive, ShieldCheck } from 'lucide-react';
 import { api, Account } from '@/lib/api';
 
 interface AccountDetailModalProps {
@@ -116,32 +116,74 @@ export const AccountDetailModal: React.FC<AccountDetailModalProps> = ({
     }
   };
 
+  const statusBadge = (status: string) => {
+    switch (status) {
+      case 'ACTIVE':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[rgba(0,208,132,0.1)] text-[#00D084] border border-[rgba(0,208,132,0.25)] shadow-[0_0_12px_rgba(0,208,132,0.1)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00D084] shadow-[0_0_6px_rgba(0,208,132,0.6)] animate-pulse-glow" />
+            ACTIVE
+          </span>
+        );
+      case 'PAUSED':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[rgba(245,158,11,0.1)] text-[#F59E0B] border border-[rgba(245,158,11,0.25)] shadow-[0_0_12px_rgba(245,158,11,0.1)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] shadow-[0_0_6px_rgba(245,158,11,0.6)]" />
+            PAUSED
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[rgba(139,92,246,0.1)] text-[#8B5CF6] border border-[rgba(139,92,246,0.25)] shadow-[0_0_12px_rgba(139,92,246,0.1)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#8B5CF6] shadow-[0_0_6px_rgba(139,92,246,0.6)]" />
+            ARCHIVED
+          </span>
+        );
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-[#0F1420] border border-[#20283A] rounded-xl max-w-lg w-full overflow-hidden shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
+      <div className="relative w-full sm:max-w-lg max-h-[92vh] overflow-y-auto bg-[#0A0F1C] border-t sm:border border-[rgba(148,163,184,0.12)] sm:rounded-xl shadow-2xl animate-slide-up sm:animate-scale-in">
+        {/* Ambient glow */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(77,124,255,0.08) 0%, transparent 60%)',
+          }}
+        />
+
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#20283A] bg-[#080B12]/60">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-base font-bold text-[#4F7CFF] bg-[#4F7CFF]/10 px-2.5 py-0.5 rounded border border-[#4F7CFF]/30">
-              {account.nova_id}
-            </span>
-            <span className="text-sm font-semibold text-[#F5F7FA]">
-              {currentMode === 'edit' ? 'CHỈNH SỬA TÀI KHOẢN' : 'CHI TIẾT TÀI KHOẢN'}
-            </span>
+        <div className="relative flex items-center justify-between px-5 py-4 border-b border-[rgba(148,163,184,0.12)] bg-[rgba(5,8,18,0.4)]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-primary-soft border border-[rgba(77,124,255,0.2)] flex items-center justify-center">
+              <ShieldCheck className="w-4 h-4 text-[#4D7CFF]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-sm font-bold text-[#4D7CFF]">{account.nova_id}</span>
+                {statusBadge(account.status)}
+              </div>
+              <p className="text-[10px] text-[#64748B] mt-0.5">
+                {currentMode === 'edit' ? 'CHỈNH SỬA TÀI KHOẢN' : 'CHI TIẾT TÀI KHOẢN'}
+              </p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="text-[#8993A4] hover:text-[#F5F7FA] p-1 rounded-lg hover:bg-[#20283A] transition-colors"
+            className="p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-[rgba(148,163,184,0.08)] transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+            aria-label="Đóng"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+        <div className="relative p-5 space-y-4 max-h-[70vh] overflow-y-auto">
           {/* Username */}
           <div>
-            <label className="block text-xs font-semibold text-[#8993A4] uppercase tracking-wider mb-1.5">
+            <label className="block text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider mb-1.5">
               Username
             </label>
             {currentMode === 'edit' ? (
@@ -149,16 +191,16 @@ export const AccountDetailModal: React.FC<AccountDetailModalProps> = ({
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-[#080B12] border border-[#20283A] text-[#F5F7FA] font-mono text-base rounded-lg px-3.5 py-2 focus:outline-none focus:border-[#4F7CFF]"
+                className="w-full bg-[rgba(5,8,18,0.6)] border border-[rgba(148,163,184,0.12)] text-[#F8FAFC] font-mono text-sm rounded-lg px-3.5 py-3 focus:outline-none focus:border-[#4D7CFF]/50 focus:shadow-glow-blue-sm transition-all duration-200"
               />
             ) : (
-              <div className="flex items-center justify-between bg-[#080B12] border border-[#20283A] rounded-lg px-3.5 py-2.5">
-                <span className="font-mono text-base font-bold text-[#F5F7FA]">{account.username}</span>
+              <div className="flex items-center justify-between bg-[rgba(5,8,18,0.6)] border border-[rgba(148,163,184,0.12)] rounded-lg px-3.5 py-3">
+                <span className="font-mono text-sm font-bold text-[#F8FAFC]">{account.username}</span>
                 <button
                   onClick={() => copyToClipboard(account.username, 'username')}
-                  className="flex items-center gap-1 text-xs text-[#4F7CFF] hover:text-[#7C5CFF] font-semibold"
+                  className="flex items-center gap-1 text-xs text-[#4D7CFF] hover:text-[#8B5CF6] font-semibold p-2 min-h-[44px] min-w-[44px] justify-center"
                 >
-                  {copiedField === 'username' ? <Check className="w-4 h-4 text-[#22C55E]" /> : <Copy className="w-4 h-4" />}
+                  {copiedField === 'username' ? <Check className="w-4 h-4 text-[#00D084]" /> : <Copy className="w-4 h-4" />}
                 </button>
               </div>
             )}
@@ -167,34 +209,34 @@ export const AccountDetailModal: React.FC<AccountDetailModalProps> = ({
           {/* Password */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold text-[#8993A4] uppercase tracking-wider">
+              <label className="text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider">
                 Password
               </label>
               {currentMode === 'edit' && (
                 <button
                   type="button"
                   onClick={handleRegenPassword}
-                  className="flex items-center gap-1 text-xs text-[#4F7CFF] font-medium"
+                  className="flex items-center gap-1 text-[11px] text-[#4D7CFF] font-medium"
                 >
-                  <RefreshCw className="w-3.5 h-3.5" />
+                  <RefreshCw className="w-3 h-3" />
                   <span>Generate new</span>
                 </button>
               )}
             </div>
 
-            <div className="flex items-center justify-between bg-[#080B12] border border-[#20283A] rounded-lg px-3.5 py-2.5">
+            <div className="flex items-center justify-between bg-[rgba(5,8,18,0.6)] border border-[rgba(148,163,184,0.12)] rounded-lg px-3.5 py-3">
               {loadingCredential ? (
-                <span className="text-xs text-[#8993A4] animate-pulse">Đang giải mã mật khẩu...</span>
+                <span className="text-xs text-[#94A3B8] animate-pulse">Đang giải mã mật khẩu...</span>
               ) : (
-                <span className="font-mono text-base font-bold text-[#F5F7FA]">
+                <span className="font-mono text-sm font-bold text-[#F8FAFC]">
                   {showPassword ? password : '••••••••••••••••'}
                 </span>
               )}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-[#8993A4] hover:text-[#F5F7FA] p-1"
+                  className="text-[#94A3B8] hover:text-[#F8FAFC] p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
                   aria-label={showPassword ? 'Ẩn mật khẩu' : 'Xem mật khẩu'}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -203,10 +245,10 @@ export const AccountDetailModal: React.FC<AccountDetailModalProps> = ({
                   <button
                     type="button"
                     onClick={() => copyToClipboard(password, 'password')}
-                    className="text-[#4F7CFF] hover:text-[#7C5CFF] p-1"
+                    className="text-[#4D7CFF] hover:text-[#8B5CF6] p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
                     title="Copy password"
                   >
-                    {copiedField === 'password' ? <Check className="w-4 h-4 text-[#22C55E]" /> : <Copy className="w-4 h-4" />}
+                    {copiedField === 'password' ? <Check className="w-4 h-4 text-[#00D084]" /> : <Copy className="w-4 h-4" />}
                   </button>
                 )}
               </div>
@@ -215,31 +257,29 @@ export const AccountDetailModal: React.FC<AccountDetailModalProps> = ({
 
           {/* Status */}
           <div>
-            <label className="block text-xs font-semibold text-[#8993A4] uppercase tracking-wider mb-1.5">
+            <label className="block text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider mb-1.5">
               Trạng thái
             </label>
             {currentMode === 'edit' ? (
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as any)}
-                className="w-full bg-[#080B12] border border-[#20283A] text-[#F5F7FA] text-sm rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#4F7CFF]"
+                className="w-full bg-[rgba(5,8,18,0.6)] border border-[rgba(148,163,184,0.12)] text-[#F8FAFC] text-sm rounded-lg px-3.5 py-3 focus:outline-none focus:border-[#4D7CFF]/50 transition-all duration-200 cursor-pointer"
               >
-                <option value="ACTIVE" className="bg-[#0F1420]">ACTIVE</option>
-                <option value="PAUSED" className="bg-[#0F1420]">PAUSED</option>
-                <option value="ARCHIVED" className="bg-[#0F1420]">ARCHIVED</option>
+                <option value="ACTIVE" className="bg-[#0A0F1C]">● ACTIVE</option>
+                <option value="PAUSED" className="bg-[#0A0F1C]">● PAUSED</option>
+                <option value="ARCHIVED" className="bg-[#0A0F1C]">● ARCHIVED</option>
               </select>
             ) : (
-              <div className="bg-[#080B12] border border-[#20283A] rounded-lg px-3.5 py-2.5 text-sm font-semibold">
-                {account.status === 'ACTIVE' && <span className="text-[#22C55E]">● ACTIVE</span>}
-                {account.status === 'PAUSED' && <span className="text-[#F59E0B]">● PAUSED</span>}
-                {account.status === 'ARCHIVED' && <span className="text-[#8993A4]">● ARCHIVED</span>}
+              <div className="bg-[rgba(5,8,18,0.6)] border border-[rgba(148,163,184,0.12)] rounded-lg px-3.5 py-3">
+                {statusBadge(account.status)}
               </div>
             )}
           </div>
 
           {/* Notes */}
           <div>
-            <label className="block text-xs font-semibold text-[#8993A4] uppercase tracking-wider mb-1.5">
+            <label className="block text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider mb-1.5">
               Ghi chú
             </label>
             {currentMode === 'edit' ? (
@@ -247,49 +287,49 @@ export const AccountDetailModal: React.FC<AccountDetailModalProps> = ({
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={2}
-                className="w-full bg-[#080B12] border border-[#20283A] text-[#F5F7FA] text-sm rounded-lg px-3.5 py-2 focus:outline-none focus:border-[#4F7CFF]"
+                className="w-full bg-[rgba(5,8,18,0.6)] border border-[rgba(148,163,184,0.12)] text-[#F8FAFC] text-sm rounded-lg px-3.5 py-3 focus:outline-none focus:border-[#4D7CFF]/50 transition-all duration-200"
               />
             ) : (
-              <div className="bg-[#080B12] border border-[#20283A] rounded-lg px-3.5 py-2.5 text-sm text-[#F5F7FA]">
-                {account.notes || <span className="text-[#8993A4] italic">Không có ghi chú</span>}
+              <div className="bg-[rgba(5,8,18,0.6)] border border-[rgba(148,163,184,0.12)] rounded-lg px-3.5 py-3 text-sm text-[#F8FAFC]">
+                {account.notes || <span className="text-[#64748B] italic">Không có ghi chú</span>}
               </div>
             )}
           </div>
 
           {/* Metadata dates */}
-          <div className="grid grid-cols-2 gap-3 text-xs text-[#8993A4] pt-2 border-t border-[#20283A]/60">
+          <div className="grid grid-cols-2 gap-3 text-xs text-[#94A3B8] pt-3 border-t border-[rgba(148,163,184,0.12)]">
             <div>
-              <span className="block text-[10px] uppercase font-semibold">Ngày tạo</span>
-              <span>{formatDate(account.created_at)}</span>
+              <span className="block text-[10px] uppercase font-semibold text-[#64748B]">Ngày tạo</span>
+              <span className="font-mono">{formatDate(account.created_at)}</span>
             </div>
             <div>
-              <span className="block text-[10px] uppercase font-semibold">Cập nhật</span>
-              <span>{formatDate(account.updated_at)}</span>
+              <span className="block text-[10px] uppercase font-semibold text-[#64748B]">Cập nhật</span>
+              <span className="font-mono">{formatDate(account.updated_at)}</span>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-5 py-4 border-t border-[#20283A] bg-[#080B12]/60">
+        <div className="relative flex items-center justify-between px-5 py-4 border-t border-[rgba(148,163,184,0.12)] bg-[rgba(5,8,18,0.4)]">
           {currentMode === 'view' ? (
             <>
               <button
                 onClick={() => onArchive(account)}
-                className="flex items-center gap-1.5 text-xs text-[#EF4444] hover:underline"
+                className="flex items-center gap-1.5 text-xs text-[#F43F5E] hover:text-[#E11D48] p-2 min-h-[44px] transition-colors"
               >
-                <Archive className="w-3.5 h-3.5" />
-                <span>Lưu trữ tài khoản</span>
+                <Archive className="w-4 h-4" />
+                <span>Lưu trữ</span>
               </button>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setCurrentMode('edit')}
-                  className="px-4 py-2 rounded-lg bg-[#20283A] hover:bg-[#2A354D] text-[#F5F7FA] text-xs font-bold transition-colors"
+                  className="px-4 py-2.5 rounded-lg bg-[rgba(10,15,28,0.6)] border border-[rgba(148,163,184,0.12)] hover:border-[rgba(148,163,184,0.25)] text-[#F8FAFC] text-xs font-semibold transition-all duration-200 min-h-[44px]"
                 >
                   Chỉnh sửa
                 </button>
                 <button
                   onClick={() => copyToClipboard(`Username: ${account.username}\nPassword: ${password}`, 'both')}
-                  className="px-4 py-2 rounded-lg bg-[#4F7CFF] hover:bg-[#3B69EE] text-white text-xs font-bold transition-colors"
+                  className="px-4 py-2.5 rounded-lg bg-gradient-primary text-white text-xs font-semibold shadow-glow-blue-sm active:scale-95 transition-all duration-200 min-h-[44px]"
                 >
                   Copy Both
                 </button>
@@ -299,14 +339,14 @@ export const AccountDetailModal: React.FC<AccountDetailModalProps> = ({
             <div className="flex items-center justify-end gap-2 w-full">
               <button
                 onClick={() => setCurrentMode('view')}
-                className="px-4 py-2 rounded-lg text-xs text-[#8993A4] hover:text-[#F5F7FA]"
+                className="px-4 py-2.5 rounded-lg text-xs text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-[rgba(148,163,184,0.08)] transition-colors min-h-[44px]"
               >
                 Hủy
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex items-center gap-1.5 px-5 py-2 rounded-lg bg-[#4F7CFF] hover:bg-[#3B69EE] text-white text-xs font-bold transition-all shadow-md"
+                className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-gradient-primary text-white text-xs font-semibold shadow-glow-blue-sm active:scale-95 transition-all duration-200 min-h-[44px] disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
                 <span>{saving ? 'Đang lưu...' : 'Lưu thay đổi'}</span>

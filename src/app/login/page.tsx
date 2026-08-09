@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sparkles, Shield, Lock, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Shield, Lock, ArrowRight, CheckCircle2, Vault } from 'lucide-react';
 import { api } from '@/lib/api';
 
 export default function LoginPage() {
@@ -37,92 +37,152 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#080B12] relative overflow-hidden">
-      {/* Subtle Ambient Accent Glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#4F7CFF]/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#050812]">
+      {/* Layered Background FX */}
+      <div className="nova-bg-fx" aria-hidden="true">
+        <div className="nova-grid-overlay" />
+        <div
+          className="nova-ambient-orb"
+          style={{
+            width: '500px',
+            height: '500px',
+            top: '-150px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: 'radial-gradient(circle, rgba(77,124,255,0.5) 0%, transparent 70%)',
+          }}
+        />
+        <div
+          className="nova-ambient-orb"
+          style={{
+            width: '350px',
+            height: '350px',
+            bottom: '-100px',
+            right: '10%',
+            background: 'radial-gradient(circle, rgba(139,92,246,0.4) 0%, transparent 70%)',
+          }}
+        />
+      </div>
 
-      <div className="w-full max-w-md bg-[#0F1420] border border-[#20283A] rounded-xl p-6 sm:p-8 shadow-2xl relative z-10">
-        {/* Brand */}
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#4F7CFF] to-[#7C5CFF] flex items-center justify-center mx-auto mb-3 shadow-lg shadow-[#4F7CFF]/20">
-            <Sparkles className="w-6 h-6 text-white" />
+      <div className="relative w-full max-w-md">
+        {/* Glass Card */}
+        <div className="relative glass-panel rounded-2xl p-6 sm:p-8 animate-scale-in">
+          {/* Ambient glow inside card */}
+          <div
+            className="absolute inset-0 pointer-events-none rounded-2xl"
+            style={{
+              background:
+                'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(77,124,255,0.06) 0%, transparent 60%)',
+            }}
+          />
+
+          {/* Decorative line */}
+          <div
+            className="absolute top-0 left-8 right-8 h-px"
+            style={{
+              background: 'linear-gradient(90deg, transparent, rgba(77,124,255,0.4), transparent)',
+            }}
+          />
+
+          {/* Brand */}
+          <div className="relative text-center mb-8">
+            <div className="relative inline-block mb-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-glow-blue">
+                <Vault className="w-7 h-7 text-white" />
+              </div>
+              <div
+                className="absolute inset-0 rounded-2xl bg-gradient-primary opacity-30 blur-xl -z-10"
+                style={{ transform: 'scale(1.2)' }}
+              />
+            </div>
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <span className="font-extrabold text-2xl tracking-wider text-[#F8FAFC]">NOVA</span>
+            </div>
+            <h2 className="text-xs uppercase tracking-widest text-[#94A3B8] font-semibold">
+              ACCOUNT VAULT MVP
+            </h2>
+            <p className="text-[10px] text-[#64748B] mt-2 font-mono">
+              Bảo mật. Tối ưu. Hiệu quả.
+            </p>
           </div>
-          <div className="flex items-center justify-center gap-2 mb-1">
-            <span className="font-extrabold text-2xl tracking-wider text-[#F5F7FA]">NOVA</span>
-          </div>
-          <h2 className="text-xs uppercase tracking-widest text-[#8993A4] font-semibold">
-            ACCOUNT VAULT MVP
-          </h2>
-        </div>
 
-        {/* Error message */}
-        {error && (
-          <div className="mb-4 p-3 rounded-lg bg-[#EF4444]/10 border border-[#EF4444]/30 text-[#EF4444] text-xs font-semibold">
-            {error}
-          </div>
-        )}
+          {/* Error message */}
+          {error && (
+            <div className="relative mb-4 p-3 rounded-lg bg-[rgba(244,63,94,0.1)] border border-[rgba(244,63,94,0.3)] text-[#F43F5E] text-xs font-semibold animate-fade-in">
+              {error}
+            </div>
+          )}
 
-        {/* Login Form */}
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-[#8993A4] uppercase tracking-wider mb-1.5">
-              Email
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-[#080B12] border border-[#20283A] text-[#F5F7FA] text-sm rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#4F7CFF] transition-colors"
-              placeholder="operator@nova.vault"
-            />
-          </div>
+          {/* Login Form */}
+          <form onSubmit={handleLogin} className="relative space-y-4">
+            <div>
+              <label className="block text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider mb-1.5">
+                Email
+              </label>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-[#64748B] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-[rgba(5,8,18,0.6)] border border-[rgba(148,163,184,0.12)] text-[#F8FAFC] text-sm rounded-lg pl-10 pr-3.5 py-3 focus:outline-none focus:border-[#4D7CFF]/50 focus:shadow-glow-blue-sm transition-all duration-200"
+                  placeholder="operator@nova.vault"
+                />
+              </div>
+            </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-[#8993A4] uppercase tracking-wider mb-1.5">
-              Password
-            </label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-[#080B12] border border-[#20283A] text-[#F5F7FA] text-sm rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#4F7CFF] transition-colors"
-              placeholder="••••••••"
-            />
-          </div>
+            <div>
+              <label className="block text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider mb-1.5">
+                Password
+              </label>
+              <div className="relative">
+                <Shield className="w-4 h-4 text-[#64748B] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-[rgba(5,8,18,0.6)] border border-[rgba(148,163,184,0.12)] text-[#F8FAFC] text-sm rounded-lg pl-10 pr-3.5 py-3 focus:outline-none focus:border-[#4D7CFF]/50 focus:shadow-glow-blue-sm transition-all duration-200"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-[#4F7CFF] hover:bg-[#3B69EE] text-white text-sm font-bold tracking-wide transition-all shadow-lg shadow-[#4F7CFF]/20 active:scale-98 disabled:opacity-50 mt-2"
-          >
-            <span>{loading ? 'ĐANG ĐĂNG NHẬP...' : 'ĐĂNG NHẬP'}</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </form>
-
-        {/* Demo Quick Fill Buttons */}
-        <div className="mt-6 pt-4 border-t border-[#20283A] text-center">
-          <span className="text-[11px] text-[#8993A4] block mb-2 font-medium">Tài khoản demo sẵn có:</span>
-          <div className="flex items-center justify-center gap-2">
             <button
-              type="button"
-              onClick={() => setDemoAccount('admin')}
-              className="px-3 py-1.5 rounded-md bg-[#080B12] border border-[#20283A] hover:border-[#4F7CFF] text-xs text-[#8993A4] hover:text-[#F5F7FA] transition-colors font-mono"
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-gradient-primary text-white text-sm font-semibold shadow-glow-blue-sm active:scale-[0.98] transition-all duration-200 disabled:opacity-50 min-h-[48px] mt-2"
             >
-              Admin Demo
+              <span>{loading ? 'ĐANG ĐĂNG NHẬP...' : 'ĐĂNG NHẬP'}</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
-            <button
-              type="button"
-              onClick={() => setDemoAccount('worker')}
-              className="px-3 py-1.5 rounded-md bg-[#080B12] border border-[#20283A] hover:border-[#4F7CFF] text-xs text-[#8993A4] hover:text-[#F5F7FA] transition-colors font-mono"
-            >
-              Worker Demo
-            </button>
+          </form>
+
+          {/* Demo Quick Fill Buttons */}
+          <div className="relative mt-6 pt-4 border-t border-[rgba(148,163,184,0.12)] text-center">
+            <span className="text-[10px] text-[#64748B] block mb-2 font-medium">
+              Tài khoản demo sẵn có:
+            </span>
+            <div className="flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => setDemoAccount('admin')}
+                className="px-3 py-2 rounded-lg bg-[rgba(5,8,18,0.6)] border border-[rgba(148,163,184,0.12)] hover:border-[#4D7CFF]/40 text-xs text-[#94A3B8] hover:text-[#F8FAFC] transition-all duration-200 font-mono min-h-[44px]"
+              >
+                Admin Demo
+              </button>
+              <button
+                type="button"
+                onClick={() => setDemoAccount('worker')}
+                className="px-3 py-2 rounded-lg bg-[rgba(5,8,18,0.6)] border border-[rgba(148,163,184,0.12)] hover:border-[#4D7CFF]/40 text-xs text-[#94A3B8] hover:text-[#F8FAFC] transition-all duration-200 font-mono min-h-[44px]"
+              >
+                Worker Demo
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};

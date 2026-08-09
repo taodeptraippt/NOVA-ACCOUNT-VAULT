@@ -3,7 +3,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, Account, Stats, User } from '@/lib/api';
-import { Header } from '@/components/Header';
+import { BackgroundFX } from '@/components/BackgroundFX';
+import { Sidebar } from '@/components/Sidebar';
+import { Topbar } from '@/components/Topbar';
+import { MobileNav } from '@/components/MobileNav';
 import { StatsCards } from '@/components/StatsCards';
 import { SearchBar } from '@/components/SearchBar';
 import { AccountTable } from '@/components/AccountTable';
@@ -182,79 +185,134 @@ export default function VaultPage() {
     }
   };
 
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [activePage, setActivePage] = useState('accounts');
+
+  const handleNavigate = (page: string) => {
+    if (page === 'logout') {
+      handleLogout();
+      return;
+    }
+    setActivePage(page);
+    if (page === 'accounts') {
+      // Already on accounts page
+    } else if (page === 'add') {
+      setIsAddModalOpen(true);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#080B12] text-[#F5F7FA] pb-16">
-      {/* Header */}
-      <Header
-        user={user}
-        onLogout={handleLogout}
-        onOpenAddModal={() => setIsAddModalOpen(true)}
-        onExport={handleExport}
-        exporting={exporting}
-      />
+    <div className="min-h-screen bg-[#050812] text-[#F8FAFC]">
+      {/* Background FX */}
+      <BackgroundFX />
 
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        {/* Page Title & Add Button */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#F5F7FA]">
-              Tài khoản của bạn
-            </h1>
-            <p className="text-xs sm:text-sm text-[#8993A4]">
-              Tạo, lưu trữ và sử dụng nhanh thông tin tài khoản NOVA
-            </p>
-          </div>
-
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#4F7CFF] hover:bg-[#3B69EE] text-white text-sm font-bold transition-all shadow-lg shadow-[#4F7CFF]/20 active:scale-95"
-          >
-            <Plus className="w-4 h-4 stroke-[3]" />
-            <span>+ Thêm tài khoản</span>
-          </button>
-        </div>
-
-        {/* Stats Summary */}
-        <StatsCards
-          stats={stats}
-          selectedStatus={statusFilter}
-          onSelectStatus={(st) => setStatusFilter(st)}
-        />
-
-        {/* Search & Filter Bar */}
-        <SearchBar
-          searchQuery={searchQuery}
-          onSearchChange={(q) => setSearchQuery(q)}
-          statusFilter={statusFilter}
-          onStatusChange={(st) => setStatusFilter(st)}
-          sortBy={sortBy}
-          onSortChange={(s) => setSortBy(s)}
-        />
-
-        {/* Accounts Table (Desktop) */}
-        <AccountTable
-          accounts={accounts}
-          loading={loading}
-          onView={handleViewAccount}
-          onCopyUsername={handleCopyUsername}
-          onCopyPassword={handleCopyPassword}
-          onEdit={(acc) => setDetailModalState({ isOpen: true, account: acc, mode: 'edit' })}
-          onArchive={(acc) => setDeleteModalState({ isOpen: true, account: acc })}
+      {/* Desktop Layout */}
+      <div className="relative flex min-h-screen">
+        {/* Sidebar (Desktop) */}
+        <Sidebar
+          user={user}
+          activePage={activePage}
+          onNavigate={handleNavigate}
           onOpenAddModal={() => setIsAddModalOpen(true)}
         />
 
-        {/* Accounts Cards (Mobile) */}
-        <AccountCardList
-          accounts={accounts}
-          loading={loading}
-          onView={handleViewAccount}
-          onCopyUsername={handleCopyUsername}
-          onCopyPassword={handleCopyPassword}
-          onEdit={(acc) => setDetailModalState({ isOpen: true, account: acc, mode: 'edit' })}
-          onArchive={(acc) => setDeleteModalState({ isOpen: true, account: acc })}
-        />
-      </main>
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Topbar */}
+          <Topbar
+            user={user}
+            onLogout={handleLogout}
+            onOpenAddModal={() => setIsAddModalOpen(true)}
+            onExport={handleExport}
+            exporting={exporting}
+            onOpenMobileNav={() => setMobileNavOpen(true)}
+            onSearch={(q) => setSearchQuery(q)}
+            searchQuery={searchQuery}
+          />
+
+          {/* Main Content */}
+          <main className="flex-1 px-4 sm:px-6 lg:px-8 pt-6 lg:pt-8 pb-24 lg:pb-8">
+            {/* Page Title & Add Button */}
+            <div className="flex items-start sm:items-center justify-between gap-3">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F8FAFC]">
+                  Tài khoản của bạn
+                </h1>
+                <p className="text-xs sm:text-sm text-[#94A3B8] mt-1">
+                  Tất cả tài khoản và trạng thái hoạt động trên hệ thống NOVA
+                </p>
+              </div>
+
+              <button
+                onClick={() => setIsAddModalOpen(true)}
+                className="btn-primary hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold"
+              >
+                <Plus className="w-4 h-4 stroke-[2.5]" />
+                <span>+ Thêm tài khoản</span>
+              </button>
+            </div>
+
+            {/* Stats Summary */}
+            <StatsCards
+              stats={stats}
+              selectedStatus={statusFilter}
+              onSelectStatus={(st) => setStatusFilter(st)}
+            />
+
+            {/* Search & Filter Bar */}
+            <SearchBar
+              searchQuery={searchQuery}
+              onSearchChange={(q) => setSearchQuery(q)}
+              statusFilter={statusFilter}
+              onStatusChange={(st) => setStatusFilter(st)}
+              sortBy={sortBy}
+              onSortChange={(s) => setSortBy(s)}
+            />
+
+            {/* Accounts Table (Desktop) */}
+            <AccountTable
+              accounts={accounts}
+              loading={loading}
+              onView={handleViewAccount}
+              onCopyUsername={handleCopyUsername}
+              onCopyPassword={handleCopyPassword}
+              onEdit={(acc) => setDetailModalState({ isOpen: true, account: acc, mode: 'edit' })}
+              onArchive={(acc) => setDeleteModalState({ isOpen: true, account: acc })}
+              onOpenAddModal={() => setIsAddModalOpen(true)}
+            />
+
+            {/* Accounts Cards (Mobile) */}
+            <AccountCardList
+              accounts={accounts}
+              loading={loading}
+              onView={handleViewAccount}
+              onCopyUsername={handleCopyUsername}
+              onCopyPassword={handleCopyPassword}
+              onEdit={(acc) => setDetailModalState({ isOpen: true, account: acc, mode: 'edit' })}
+              onArchive={(acc) => setDeleteModalState({ isOpen: true, account: acc })}
+            />
+
+            {/* Mobile Add Account Button */}
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="sm:hidden w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-primary text-white text-sm font-semibold shadow-glow-blue-sm active:scale-[0.98] transition-all duration-200 mt-4"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>Thêm tài khoản</span>
+            </button>
+          </main>
+        </div>
+      </div>
+
+      {/* Mobile Navigation */}
+      <MobileNav
+        isOpen={mobileNavOpen}
+        onClose={() => setMobileNavOpen(false)}
+        user={user}
+        activePage={activePage}
+        onNavigate={handleNavigate}
+        onOpenAddModal={() => setIsAddModalOpen(true)}
+        onLogout={handleLogout}
+      />
 
       {/* MODALS */}
       {/* 1. Add Account Modal (Pre-filled Auto Generator) */}

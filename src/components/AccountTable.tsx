@@ -1,7 +1,17 @@
 'use client';
 
 import React from 'react';
-import { Eye, Copy, Edit2, Archive, Check } from 'lucide-react';
+import {
+  Eye,
+  Copy,
+  Edit2,
+  Archive,
+  Check,
+  Play,
+  Pause,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import { Account } from '@/lib/api';
 
 interface AccountTableProps {
@@ -31,7 +41,7 @@ export const AccountTable: React.FC<AccountTableProps> = ({
         {[1, 2, 3, 4, 5].map((i) => (
           <div
             key={i}
-            className="h-14 bg-[#0F1420] border border-[#20283A] rounded-xl animate-pulse"
+            className="h-14 bg-[rgba(10,15,28,0.6)] border border-[rgba(148,163,184,0.12)] rounded-xl animate-pulse"
           />
         ))}
       </div>
@@ -40,17 +50,18 @@ export const AccountTable: React.FC<AccountTableProps> = ({
 
   if (accounts.length === 0) {
     return (
-      <div className="bg-[#0F1420] border border-[#20283A] rounded-xl p-12 text-center my-6">
-        <div className="w-12 h-12 rounded-full bg-[#20283A] text-[#4F7CFF] flex items-center justify-center mx-auto mb-4 font-bold text-xl">
-          ✦
+      <div className="glass-panel rounded-xl p-12 text-center my-6">
+        <div className="relative w-14 h-14 rounded-full bg-gradient-primary-soft flex items-center justify-center mx-auto mb-4">
+          <div className="absolute inset-0 rounded-full bg-gradient-primary opacity-20 blur-lg" />
+          <span className="relative text-[#4D7CFF] text-2xl">✦</span>
         </div>
-        <h4 className="text-base font-bold text-[#F5F7FA] mb-1">Chưa có tài khoản nào</h4>
-        <p className="text-xs text-[#8993A4] mb-6 max-w-sm mx-auto">
+        <h4 className="text-base font-bold text-[#F8FAFC] mb-1">Chưa có tài khoản nào</h4>
+        <p className="text-xs text-[#94A3B8] mb-6 max-w-sm mx-auto">
           Tạo tài khoản NOVA đầu tiên với tên gọi ngẫu nhiên và mật khẩu an toàn trong vài giây.
         </p>
         <button
           onClick={onOpenAddModal}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#4F7CFF] hover:bg-[#3B69EE] text-white text-xs font-bold transition-all shadow-lg shadow-[#4F7CFF]/20"
+          className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-semibold"
         >
           <span>+ Thêm tài khoản đầu tiên</span>
         </button>
@@ -62,22 +73,22 @@ export const AccountTable: React.FC<AccountTableProps> = ({
     switch (status) {
       case 'ACTIVE':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]"></span>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[rgba(0,208,132,0.1)] text-[#00D084] border border-[rgba(0,208,132,0.25)] shadow-[0_0_12px_rgba(0,208,132,0.1)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00D084] shadow-[0_0_6px_rgba(0,208,132,0.6)] animate-pulse-glow" />
             ACTIVE
           </span>
         );
       case 'PAUSED':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[rgba(245,158,11,0.1)] text-[#F59E0B] border border-[rgba(245,158,11,0.25)] shadow-[0_0_12px_rgba(245,158,11,0.1)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] shadow-[0_0_6px_rgba(245,158,11,0.6)]" />
             PAUSED
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#8993A4]/10 text-[#8993A4] border border-[#8993A4]/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#8993A4]"></span>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[rgba(139,92,246,0.1)] text-[#8B5CF6] border border-[rgba(139,92,246,0.25)] shadow-[0_0_12px_rgba(139,92,246,0.1)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#8B5CF6] shadow-[0_0_6px_rgba(139,92,246,0.6)]" />
             ARCHIVED
           </span>
         );
@@ -97,79 +108,137 @@ export const AccountTable: React.FC<AccountTableProps> = ({
     }
   };
 
+  const actionButton = (
+    label: string,
+    onClick: () => void,
+    icon: React.ReactNode,
+    color = '#94A3B8',
+    hoverColor = '#F8FAFC'
+  ) => (
+    <button
+      onClick={onClick}
+      className="group/btn relative p-2 rounded-lg bg-[rgba(10,15,28,0.6)] border border-[rgba(148,163,184,0.12)] transition-all duration-200 hover:shadow-glow-blue-sm"
+      title={label}
+      aria-label={label}
+      style={{ color }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.color = hoverColor;
+        e.currentTarget.style.borderColor = 'rgba(77,124,255,0.3)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.color = color;
+        e.currentTarget.style.borderColor = 'rgba(148,163,184,0.12)';
+      }}
+    >
+      {icon}
+    </button>
+  );
+
   return (
-    <div className="hidden md:block overflow-hidden rounded-xl border border-[#20283A] bg-[#0F1420] shadow-xl">
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="border-b border-[#20283A] bg-[#080B12]/80 text-[11px] font-bold text-[#8993A4] uppercase tracking-wider">
-            <th className="py-3.5 px-4">ID</th>
-            <th className="py-3.5 px-4">USERNAME</th>
-            <th className="py-3.5 px-4">STATUS</th>
-            <th className="py-3.5 px-4">GHI CHÚ</th>
-            <th className="py-3.5 px-4">CREATED</th>
-            <th className="py-3.5 px-4 text-right">ACTION</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-[#20283A] text-sm">
-          {accounts.map((acc) => (
-            <tr key={acc.id} className="hover:bg-[#151C2C] transition-colors group">
-              <td className="py-3.5 px-4 font-mono font-bold text-[#4F7CFF]">{acc.nova_id}</td>
-              <td className="py-3.5 px-4 font-mono font-semibold text-[#F5F7FA]">
-                {acc.username}
-              </td>
-              <td className="py-3.5 px-4">{statusBadge(acc.status)}</td>
-              <td className="py-3.5 px-4 text-xs text-[#8993A4] max-w-[200px] truncate" title={acc.notes || ''}>
-                {acc.notes || <span className="text-[#8993A4]/50 italic">—</span>}
-              </td>
-              <td className="py-3.5 px-4 text-xs text-[#8993A4] font-mono">
-                {formatDate(acc.created_at)}
-              </td>
-              <td className="py-3.5 px-4 text-right">
-                <div className="flex items-center justify-end gap-1.5">
-                  <button
-                    onClick={() => onView(acc)}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#20283A] hover:bg-[#4F7CFF] text-[#F5F7FA] text-xs font-semibold transition-colors"
-                    title="Xem / Sử dụng ngay"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    <span>Xem</span>
-                  </button>
-                  <button
-                    onClick={() => onCopyUsername(acc.username)}
-                    className="p-1.5 rounded bg-[#20283A] hover:bg-[#2A354D] text-[#8993A4] hover:text-[#F5F7FA] transition-colors"
-                    title="Copy Username"
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => onCopyPassword(acc)}
-                    className="p-1.5 rounded bg-[#20283A] hover:bg-[#2A354D] text-[#8993A4] hover:text-[#7C5CFF] transition-colors"
-                    title="Copy Password"
-                  >
-                    <span className="text-[10px] font-mono font-bold px-0.5">PWD</span>
-                  </button>
-                  <button
-                    onClick={() => onEdit(acc)}
-                    className="p-1.5 rounded bg-[#20283A] hover:bg-[#2A354D] text-[#8993A4] hover:text-[#F5F7FA] transition-colors"
-                    title="Chỉnh sửa"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                  </button>
-                  {acc.status !== 'ARCHIVED' && (
-                    <button
-                      onClick={() => onArchive(acc)}
-                      className="p-1.5 rounded bg-[#20283A] hover:bg-[#EF4444]/20 text-[#8993A4] hover:text-[#EF4444] transition-colors"
-                      title="Lưu trữ"
-                    >
-                      <Archive className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
-              </td>
+    <div className="hidden md:block glass-panel rounded-xl overflow-hidden my-6">
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-[rgba(148,163,184,0.12)] bg-[rgba(5,8,18,0.4)] text-[10px] font-bold text-[#64748B] uppercase tracking-wider">
+              <th className="py-3.5 px-4 font-semibold">ID</th>
+              <th className="py-3.5 px-4 font-semibold">USERNAME</th>
+              <th className="py-3.5 px-4 font-semibold">STATUS</th>
+              <th className="py-3.5 px-4 font-semibold">GHI CHÚ</th>
+              <th className="py-3.5 px-4 font-semibold">CREATED</th>
+              <th className="py-3.5 px-4 text-right font-semibold">ACTION</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-[rgba(148,163,184,0.06)]">
+            {accounts.map((acc) => (
+              <tr
+                key={acc.id}
+                className="group relative transition-colors duration-150 hover:bg-[rgba(77,124,255,0.03)]"
+                style={{
+                  backgroundImage:
+                    'linear-gradient(to right, rgba(77,124,255,0.04), transparent)',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundSize: '0% 100%',
+                  backgroundPosition: 'left center',
+                  transition: 'background-size 0.3s ease, background-color 0.15s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundSize = '100% 100%';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundSize = '0% 100%';
+                }}
+              >
+                <td className="py-3.5 px-4">
+                  <span className="font-mono font-bold text-[13px] text-[#4D7CFF] tracking-wide">
+                    {acc.nova_id}
+                  </span>
+                </td>
+                <td className="py-3.5 px-4 relative">
+                  <span className="font-mono font-semibold text-[13px] text-[#F8FAFC]">
+                    {acc.username}
+                  </span>
+                </td>
+                <td className="py-3.5 px-4 relative">{statusBadge(acc.status)}</td>
+                <td className="py-3.5 px-4 relative text-xs text-[#94A3B8] max-w-[180px] truncate" title={acc.notes || ''}>
+                  {acc.notes || <span className="text-[#64748B]/50 italic">—</span>}
+                </td>
+                <td className="py-3.5 px-4 relative text-xs text-[#94A3B8] font-mono">
+                  {formatDate(acc.created_at)}
+                </td>
+                <td className="py-3.5 px-4 relative">
+                  <div className="flex items-center justify-end gap-1.5">
+                    {actionButton('Xem / Sử dụng ngay', () => onView(acc), <Eye className="w-4 h-4" />, '#4D7CFF', '#4D7CFF')}
+                    {actionButton('Copy Username', () => onCopyUsername(acc.username), <Copy className="w-4 h-4" />)}
+                    {actionButton('Copy Password', () => onCopyPassword(acc), <span className="text-[10px] font-mono font-bold px-0.5">PWD</span>, '#8B5CF6', '#8B5CF6')}
+                    {actionButton('Chỉnh sửa', () => onEdit(acc), <Edit2 className="w-4 h-4" />, '#94A3B8', '#4D7CFF')}
+                    {acc.status === 'ACTIVE' && actionButton('Tạm dừng', () => onEdit(acc), <Pause className="w-4 h-4" />, '#F59E0B', '#F59E0B')}
+                    {acc.status === 'PAUSED' && actionButton('Kích hoạt', () => onEdit(acc), <Play className="w-4 h-4" />, '#00D084', '#00D084')}
+                    {acc.status !== 'ARCHIVED' && actionButton('Lưu trữ', () => onArchive(acc), <Archive className="w-4 h-4" />, '#F43F5E', '#F43F5E')}
+                    {acc.status === 'ARCHIVED' && (
+                      <span className="w-9 h-9 flex items-center justify-center text-[#64748B]/40">
+                        <Check className="w-4 h-4" />
+                      </span>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Table Footer / Pagination */}
+      <div className="flex items-center justify-between px-4 py-3 border-t border-[rgba(148,163,184,0.12)] bg-[rgba(5,8,18,0.3)]">
+        <div className="text-[11px] text-[#64748B]">
+          Hiển thị <span className="text-[#F8FAFC] font-semibold">1</span> đến{' '}
+          <span className="text-[#F8FAFC] font-semibold">{accounts.length}</span> của{' '}
+          <span className="text-[#F8FAFC] font-semibold">{accounts.length}</span> tài khoản
+        </div>
+
+        <div className="flex items-center gap-1">
+          <button
+            className="p-1.5 rounded-lg bg-[rgba(10,15,28,0.6)] border border-[rgba(148,163,184,0.12)] text-[#64748B] hover:text-[#F8FAFC] hover:border-[#4D7CFF]/30 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+            disabled
+            aria-label="Trang trước"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-semibold bg-gradient-primary text-white shadow-glow-blue-sm border border-[rgba(77,124,255,0.3)]"
+            aria-current="page"
+          >
+            1
+          </button>
+          <button
+            className="p-1.5 rounded-lg bg-[rgba(10,15,28,0.6)] border border-[rgba(148,163,184,0.12)] text-[#64748B] hover:text-[#F8FAFC] hover:border-[#4D7CFF]/30 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+            disabled
+            aria-label="Trang sau"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

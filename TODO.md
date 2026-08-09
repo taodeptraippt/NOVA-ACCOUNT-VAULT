@@ -1,37 +1,34 @@
-# TODO — Chuyển đổi NOVA ACCOUNT VAULT sang Node.js (Panel Pterodactyl Nodejs 24)
+# NOVA VAULT MVP — Redesign Implementation Checklist
 
-## Mục tiêu
-- Chuyển toàn bộ backend FastAPI (Python) → Next.js API Routes (TypeScript)
-- Chạy trên panel Pterodactyl Nodejs 24 (main file `server.js`, `npm install` tại thư mục gốc)
-- Chỉ dùng 1 container Node, SQLite + crypto built-in (không native dep rủi ro)
-- Ưu tiên KHÔNG mất dữ liệu + tính năng export file txt
-- Truy cập qua `fusion.pikamc.vn:25737`
+## Foundation
+- [x] 1. Update tailwind.config.js with new design tokens
+- [x] 2. Update src/app/globals.css with new design system + background FX
+- [x] 3. Update src/app/layout.tsx with fonts (Inter + JetBrains Mono)
 
-## Kế hoạch triển khai
-1. Tạo cấu trúc thư mục gốc (package.json, next.config, tsconfig, tailwind, postcss, server.js)
-2. Tạo các lib backend: `src/lib/db.ts`, `security.ts`, `password.ts`, `auth.ts`
-3. Tạo API routes: auth (login/me/logout), accounts CRUD, stats, generate
-4. Chuyển components & pages từ `frontend/src` lên `src/`
-5. Thêm tính năng export file txt (nút "Tải backup .txt")
-6. Cập nhật `.gitignore`, README
-7. Xóa thư mục `frontend/` và `backend/` (không còn dùng)
-8. Kiểm tra build + hướng dẫn deploy
+## New Layout Components
+- [x] 4. Create src/components/BackgroundFX.tsx
+- [x] 5. Create src/components/Sidebar.tsx
+- [x] 6. Create src/components/Topbar.tsx
+- [x] 7. Create src/components/MobileNav.tsx
 
-## Trạng thái
-- [x] Tạo TODO.md
-- [x] Cấu hình gốc (package.json, next.config, tsconfig, tailwind, postcss, next-env.d.ts, server.js)
-- [x] Lib backend (db, security, password, auth)
-- [x] API routes auth
-- [x] API routes accounts
-- [x] Components & pages frontend
-- [x] Tính năng export .txt
-- [x] .gitignore + README + .env.example
-- [x] Xóa backend/, frontend/ cũ
-- [x] Build & kiểm tra
+## Dashboard Components Redesign
+- [x] 8. Redesign src/components/StatsCards.tsx
+- [x] 9. Redesign src/components/SearchBar.tsx
+- [x] 10. Redesign src/components/AccountTable.tsx
+- [x] 11. Redesign src/components/AccountCard.tsx
 
-## Kết quả kiểm chứng (đã thông qua)
-- `npm run build` → SUCCESS (toàn bộ 13 route compile, không lỗi type)
-- Server production `next start` → Ready (khởi động OK)
-- Logic security: scrypt hash + AES-256-GCM encrypt/decrypt + JWT → hoạt động
-- Test end-to-end HTTP: login (admin) → tạo account `NovaTest123` → stats → export → account lưu đúng vào DB (`NOVA-0001`)
+## Modals & Feedback Redesign
+- [x] 12. Redesign src/components/AddAccountModal.tsx
+- [x] 13. Redesign src/components/QuickUseModal.tsx
+- [x] 14. Redesign src/components/AccountDetailModal.tsx
+- [x] 15. Redesign src/components/DeleteConfirmModal.tsx
+- [x] 16. Redesign src/components/Toast.tsx
 
+## Pages Integration
+- [x] 17. Redesign src/app/login/page.tsx
+- [x] 18. Update src/app/page.tsx with new layout (Sidebar + Topbar + MobileNav + BackgroundFX)
+
+## QA & Verification
+- [x] 19. Run npm run build — fix any TypeScript errors
+- [x] 20. Visual QA at all breakpoints (360/375/390/412/430/768/1024/1280+)
+- [x] 21. Fix issues found during QA (MobileNav w-4.5, Topbar mobile search, MobileNav 'more' button, AccountTable tooltips/td)

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Copy, Check, Plus, Eye, EyeOff, Sparkles, ShieldCheck } from 'lucide-react';
+import { X, Copy, Check, Plus, Eye, EyeOff, ShieldCheck, Sparkles } from 'lucide-react';
 import { Account } from '@/lib/api';
 
 interface QuickUseModalProps {
@@ -41,22 +41,34 @@ export const QuickUseModal: React.FC<QuickUseModalProps> = ({
   const copyBothText = `Username: ${account.username}\nPassword: ${plainPassword}`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-[#0F1420] border border-[#20283A] rounded-xl max-w-md w-full overflow-hidden shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+      <div className="relative w-full sm:max-w-md max-h-[92vh] overflow-y-auto bg-[#0A0F1C] border-t sm:border border-[rgba(148,163,184,0.12)] sm:rounded-xl shadow-2xl animate-slide-up sm:animate-scale-in">
+        {/* Ambient glow */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(77,124,255,0.08) 0%, transparent 60%)',
+          }}
+        />
+
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#20283A] bg-[#080B12]/60">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-sm font-bold text-[#4F7CFF] bg-[#4F7CFF]/10 px-2 py-0.5 rounded border border-[#4F7CFF]/30">
-              {account.nova_id}
-            </span>
-            <span className="text-xs font-semibold text-[#22C55E] flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]"></span>
-              Sẵn sàng sử dụng
-            </span>
+        <div className="relative flex items-center justify-between px-5 py-4 border-b border-[rgba(148,163,184,0.12)] bg-[rgba(5,8,18,0.4)]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-primary-soft border border-[rgba(77,124,255,0.2)] flex items-center justify-center">
+              <ShieldCheck className="w-4 h-4 text-[#4D7CFF]" />
+            </div>
+            <div>
+              <span className="font-mono text-sm font-bold text-[#4D7CFF]">{account.nova_id}</span>
+              <span className="flex items-center gap-1 mt-0.5 text-[10px] font-semibold text-[#00D084]">
+                <span className="w-1 h-1 rounded-full bg-[#00D084] shadow-[0_0_6px_rgba(0,208,132,0.6)] animate-pulse-glow" />
+                Sẵn sàng sử dụng
+              </span>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="text-[#8993A4] hover:text-[#F5F7FA] p-1 rounded-lg hover:bg-[#20283A] transition-colors"
+            className="p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-[rgba(148,163,184,0.08)] transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
             aria-label="Đóng"
           >
             <X className="w-5 h-5" />
@@ -64,29 +76,30 @@ export const QuickUseModal: React.FC<QuickUseModalProps> = ({
         </div>
 
         {/* Credentials View */}
-        <div className="p-5 space-y-4">
+        <div className="relative p-5 space-y-4">
           {/* Username Item */}
-          <div className="bg-[#080B12] border border-[#20283A] rounded-lg p-3">
-            <div className="text-[11px] font-bold text-[#8993A4] uppercase tracking-wider mb-1">
-              Username
+          <div className="bg-[rgba(5,8,18,0.6)] border border-[rgba(148,163,184,0.12)] rounded-lg p-3.5">
+            <div className="flex items-center justify-between text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider mb-1.5">
+              <span>Username</span>
+              <span className="text-[#64748B] normal-case tracking-normal">thông tin đăng nhập</span>
             </div>
             <div className="flex items-center justify-between gap-2">
-              <span className="font-mono text-base font-bold text-[#F5F7FA] truncate">
+              <span className="font-mono text-sm font-bold text-[#F8FAFC] truncate">
                 {account.username}
               </span>
               <button
                 onClick={() => copyToClipboard(account.username, 'username')}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-[#20283A] hover:bg-[#4F7CFF] text-[#F5F7FA] text-xs font-semibold transition-colors flex-shrink-0"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[rgba(77,124,255,0.1)] border border-[rgba(77,124,255,0.2)] hover:bg-[rgba(77,124,255,0.2)] text-[#4D7CFF] text-xs font-semibold transition-all duration-200 min-h-[44px] flex-shrink-0"
               >
                 {copiedField === 'username' ? (
                   <>
-                    <Check className="w-3.5 h-3.5 text-[#22C55E]" />
-                    <span>Đã Copy</span>
+                    <Check className="w-3.5 h-3.5 text-[#00D084]" />
+                    <span>Đã copy</span>
                   </>
                 ) : (
                   <>
                     <Copy className="w-3.5 h-3.5" />
-                    <span>COPY</span>
+                    <span>Copy</span>
                   </>
                 )}
               </button>
@@ -94,35 +107,35 @@ export const QuickUseModal: React.FC<QuickUseModalProps> = ({
           </div>
 
           {/* Password Item */}
-          <div className="bg-[#080B12] border border-[#20283A] rounded-lg p-3">
-            <div className="flex items-center justify-between text-[11px] font-bold text-[#8993A4] uppercase tracking-wider mb-1">
+          <div className="bg-[rgba(5,8,18,0.6)] border border-[rgba(148,163,184,0.12)] rounded-lg p-3.5">
+            <div className="flex items-center justify-between text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider mb-1.5">
               <span>Password</span>
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-[#8993A4] hover:text-[#F5F7FA] flex items-center gap-1 text-[11px] lowercase"
+                className="text-[#94A3B8] hover:text-[#F8FAFC] flex items-center gap-1 text-[10px] normal-case tracking-normal"
               >
                 {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                 <span>{showPassword ? 'Ẩn' : 'Hiện'}</span>
               </button>
             </div>
             <div className="flex items-center justify-between gap-2">
-              <span className="font-mono text-base font-bold text-[#F5F7FA] truncate">
+              <span className="font-mono text-sm font-bold text-[#F8FAFC] truncate">
                 {showPassword ? plainPassword : '••••••••••••••••'}
               </span>
               <button
                 onClick={() => copyToClipboard(plainPassword, 'password')}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-[#20283A] hover:bg-[#4F7CFF] text-[#F5F7FA] text-xs font-semibold transition-colors flex-shrink-0"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[rgba(77,124,255,0.1)] border border-[rgba(77,124,255,0.2)] hover:bg-[rgba(77,124,255,0.2)] text-[#4D7CFF] text-xs font-semibold transition-all duration-200 min-h-[44px] flex-shrink-0"
               >
                 {copiedField === 'password' ? (
                   <>
-                    <Check className="w-3.5 h-3.5 text-[#22C55E]" />
-                    <span>Đã Copy</span>
+                    <Check className="w-3.5 h-3.5 text-[#00D084]" />
+                    <span>Đã copy</span>
                   </>
                 ) : (
                   <>
                     <Copy className="w-3.5 h-3.5" />
-                    <span>COPY</span>
+                    <span>Copy</span>
                   </>
                 )}
               </button>
@@ -130,20 +143,20 @@ export const QuickUseModal: React.FC<QuickUseModalProps> = ({
           </div>
 
           {/* Large Action Buttons */}
-          <div className="space-y-2 pt-2">
+          <div className="space-y-2.5 pt-2">
             {/* Copy Both */}
             <button
               onClick={() => copyToClipboard(copyBothText, 'both')}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-[#20283A] hover:bg-[#2A354D] border border-[#20283A] text-[#F5F7FA] text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-[rgba(10,15,28,0.6)] border border-[rgba(148,163,184,0.12)] hover:border-[rgba(139,92,246,0.3)] text-[#F8FAFC] text-xs font-semibold transition-all duration-200 min-h-[44px]"
             >
               {copiedField === 'both' ? (
                 <>
-                  <Check className="w-4 h-4 text-[#22C55E]" />
+                  <Check className="w-4 h-4 text-[#00D084]" />
                   <span>ĐÃ COPY CẢ USERNAME & PASSWORD</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-4 h-4 text-[#7C5CFF]" />
+                  <Copy className="w-4 h-4 text-[#8B5CF6]" />
                   <span>COPY BOTH (USERNAME + PASSWORD)</span>
                 </>
               )}
@@ -155,7 +168,7 @@ export const QuickUseModal: React.FC<QuickUseModalProps> = ({
                 onClose();
                 onCreateNext();
               }}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-[#4F7CFF] hover:bg-[#3B69EE] text-white text-sm font-bold tracking-wide transition-all shadow-lg shadow-[#4F7CFF]/25 active:scale-98"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-gradient-primary text-white text-sm font-semibold shadow-glow-blue-sm active:scale-95 transition-all duration-200 min-h-[44px]"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
               <span>+ TẠO TÀI KHOẢN TIẾP THEO</span>
