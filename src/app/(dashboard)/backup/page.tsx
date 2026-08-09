@@ -49,6 +49,71 @@ export default function BackupPage() {
     setLastBackup(now);
   };
 
+  // Restore state + handler
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [restoring, setRestoring] = useState(false);
+  const [restoreProgress, setRestoreProgress] = useState({ total: 0, success: 0, failed: 0 });
+
+  const handleRestore = async (file: File | null) => {
+    if (!file) return showToast('Vui lòng chọn file backup .txt', 'error');
+    setRestoring(true);
+    setRestoreProgress({ total: 0, success: 0, failed: 0 });
+
+    try {
+      const text = await file.text();
+      const lines = text.split(/\r?\n/);
+      const entries: Array<{ username: string; password: string; status: string; notes?: string }> = [];
+
+      let i = 0;
+      while (i < lines.length) {
+        const line = lines[i].trim();
+        const headerMatch = line.match(/^\[(\d+)\]\s+(.*?)\s+—\s+(\w+)/);
+        if (headerMatch) {
+          // read following detail lines
+          i++;
+          let username = '';
+          let password = '';
+          let notes = '';
+          while (i < lines.length && !lines[i].trim().startsWith('[')) {
+            const l = lines[i].trim();
+            if (l.startsWith('Username:')) username = l.replace('Username:', '').trim();
+            else if (l.startsWith('Password:')) password = l.replace('Password:', '').trim();
+            else if (l.startsWith('Notes:')) {
+              notes = l.replace('Notes:', '').trim();
+              if (notes === '(không có)') notes = '';
+            }
+            i++;
+          }
+          const status = headerMatch[3] || 'ACTIVE';
+          if (username && password) entries.push({ username, password, status, notes });
+        } else {
+          i++;
+        }
+      }
+
+      setRestoreProgress((p) => ({ ...p, total: entries.length }));
+
+      for (const e of entries) {
+        try {
+          await api.createAccount({ username: e.username, password: e.password, status: e.status, notes: e.notes });
+          setRestoreProgress((p) => ({ ...p, success: p.success + 1 }));
+        } catch (err: any) {
+          setRestoreProgress((p) => ({ ...p, failed: p.failed + 1 }));
+        }
+      }
+
+      // Refresh stats after restore
+      await loadData();
+
+      showToast(`Khôi phục xong: ${entries.length} mục (thành công ${restoreProgress.success + 0})`, 'success');
+      setSelectedFile(null);
+    } catch (err: any) {
+      showToast(err.message || 'Lỗi khi khôi phục dữ liệu', 'error');
+    } finally {
+      setRestoring(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -163,7 +228,7 @@ export default function BackupPage() {
         </div>
       </div>
 
-      {/* Restore Section — Coming Soon (no backend restore API exists) */}
+      {/* Restore Section */}
       <div className="glass-panel rounded-xl p-5">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-lg bg-[rgba(245,158,11,0.1)] border border-[rgba(245,158,11,0.25)] flex items-center justify-center">
@@ -175,14 +240,34 @@ export default function BackupPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-[13px] text-[#F59E0B] mb-3">
-          <AlertTriangle className="w-4 h-4" />
-          <span>Coming soon</span>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-3">
+          <input
+            type="file"
+            accept=".txt"
+            onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
+            className="text-sm text-[#94A3B8]"
+          />
+
+          <button
+            onClick={() => handleRestore(selectedFile)}
+            disabled={restoring || !selectedFile}
+            className="btn-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"
+          >
+            <Upload className="w-4 h-4" />
+            <span>{restoring ? 'Đang khôi phục...' : 'Khôi phục từ file'}</span>
+          </button>
         </div>
 
-        <p className="text-xs text-[#64748B]">
-          Tính năng khôi phục dữ liệu từ file backup sẽ được hỗ trợ trong phiên bản tiếp theo.
-          Hiện tại bạn chỉ có thể xuất backup dưới dạng file .txt.
+        {restoreProgress.total > 0 && (
+          <div className="text-[13px] text-[#94A3B8]">
+            <div>Tổng: {restoreProgress.total}</div>
+            <div className="text-[#00D084]">Thành công: {restoreProgress.success}</div>
+            <div className="text-[#F43F5E]">Thất bại: {restoreProgress.failed}</div>
+          </div>
+        )}
+
+        <p className="text-xs text-[#64748B] mt-3">
+          Chọn file .txt đã xuất từ NOVA VAULT để khôi phục tài khoản. Hệ thống sẽ tạo các tài khoản mới từ nội dung file.
         </p>
       </div>
     </div>
