@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Eye, EyeOff, Copy, Check, RefreshCw, Save, Archive, ShieldCheck } from 'lucide-react';
 import { api, Account } from '@/lib/api';
+import { copyTextToClipboard } from '@/lib/clipboard';
 
 interface AccountDetailModalProps {
   isOpen: boolean;
@@ -63,12 +64,16 @@ export const AccountDetailModal: React.FC<AccountDetailModalProps> = ({
 
   if (!isOpen || !account) return null;
 
-  const copyToClipboard = (text: string, field: 'username' | 'password' | 'both') => {
-    navigator.clipboard.writeText(text);
+  const copyToClipboard = async (text: string, field: 'username' | 'password' | 'both') => {
+    const copied = await copyTextToClipboard(text);
     setCopiedField(field);
-    if (field === 'username') showToast('✓ Đã copy Username', 'success');
-    else if (field === 'password') showToast('✓ Đã copy Mật khẩu', 'success');
-    else showToast('✓ Đã copy Username & Mật khẩu', 'success');
+    if (copied) {
+      if (field === 'username') showToast('✓ Đã copy Username', 'success');
+      else if (field === 'password') showToast('✓ Đã copy Mật khẩu', 'success');
+      else showToast('✓ Đã copy Username & Mật khẩu', 'success');
+    } else {
+      showToast('Không thể sao chép. Vui lòng thử lại.', 'error');
+    }
 
     setTimeout(() => setCopiedField(null), 2000);
   };

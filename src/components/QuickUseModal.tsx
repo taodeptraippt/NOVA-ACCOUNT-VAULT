@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { X, Copy, Check, Plus, Eye, EyeOff, ShieldCheck, Sparkles } from 'lucide-react';
 import { Account } from '@/lib/api';
+import { copyTextToClipboard } from '@/lib/clipboard';
 
 interface QuickUseModalProps {
   isOpen: boolean;
@@ -26,12 +27,16 @@ export const QuickUseModal: React.FC<QuickUseModalProps> = ({
 
   if (!isOpen || !account) return null;
 
-  const copyToClipboard = (text: string, field: 'username' | 'password' | 'both') => {
-    navigator.clipboard.writeText(text);
+  const copyToClipboard = async (text: string, field: 'username' | 'password' | 'both') => {
+    const copied = await copyTextToClipboard(text);
     setCopiedField(field);
-    if (field === 'username') showToast('✓ Đã copy Username', 'success');
-    else if (field === 'password') showToast('✓ Đã copy Mật khẩu', 'success');
-    else showToast('✓ Đã copy Username & Mật khẩu', 'success');
+    if (copied) {
+      if (field === 'username') showToast('✓ Đã copy Username', 'success');
+      else if (field === 'password') showToast('✓ Đã copy Mật khẩu', 'success');
+      else showToast('✓ Đã copy Username & Mật khẩu', 'success');
+    } else {
+      showToast('Không thể sao chép. Vui lòng thử lại.', 'error');
+    }
 
     setTimeout(() => {
       setCopiedField(null);

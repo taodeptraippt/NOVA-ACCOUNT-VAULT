@@ -12,6 +12,7 @@ import { AddAccountModal } from '@/components/AddAccountModal';
 import { QuickUseModal } from '@/components/QuickUseModal';
 import { AccountDetailModal } from '@/components/AccountDetailModal';
 import { DeleteConfirmModal } from '@/components/DeleteConfirmModal';
+import { copyTextToClipboard } from '@/lib/clipboard';
 import { Plus } from 'lucide-react';
 
 export default function AccountsPage() {
@@ -127,17 +128,25 @@ function AccountsContent() {
   };
 
   // Fast Copy Username
-  const handleCopyUsername = (username: string) => {
-    navigator.clipboard.writeText(username);
-    showToast('✓ Đã copy Username', 'success');
+  const handleCopyUsername = async (username: string) => {
+    const copied = await copyTextToClipboard(username);
+    if (copied) {
+      showToast('✓ Đã copy Username', 'success');
+    } else {
+      showToast('Không thể sao chép. Vui lòng thử lại.', 'error');
+    }
   };
 
   // Fast Copy Password directly from list
   const handleCopyPassword = async (account: Account) => {
     try {
       const cred = await api.getCredential(account.id);
-      navigator.clipboard.writeText(cred.password);
-      showToast(`✓ Đã copy Mật khẩu (${account.nova_id})`, 'success');
+      const copied = await copyTextToClipboard(cred.password);
+      if (copied) {
+        showToast(`✓ Đã copy Mật khẩu (${account.nova_id})`, 'success');
+      } else {
+        showToast('Không thể sao chép. Vui lòng thử lại.', 'error');
+      }
     } catch (err: any) {
       showToast('Lỗi copy mật khẩu', 'error');
     }
