@@ -27,6 +27,16 @@ if (process.env.AUTO_SYNC !== '0') {
     console.log('[server.js] Syncing code from GitHub (git fetch + reset --hard)...');
     execSync('git fetch origin', { stdio: 'inherit', cwd: __dirname });
     execSync('git reset --hard origin/main', { stdio: 'inherit', cwd: __dirname });
+
+    // Remove the stale .next build so the app is rebuilt from the
+    // freshly synced source. Otherwise the old compiled UI keeps
+    // being served even though the source code is new.
+    const nextBuildDir = path.join(__dirname, '.next');
+    if (fs.existsSync(nextBuildDir)) {
+      console.log('[server.js] Removing stale .next build to force rebuild...');
+      fs.rmSync(nextBuildDir, { recursive: true, force: true });
+    }
+
     console.log('[server.js] Code synced to origin/main.');
   } catch (err) {
     console.warn('[server.js] Git sync failed (continuing anyway):', err.message);
