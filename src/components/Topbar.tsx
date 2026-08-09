@@ -12,73 +12,44 @@ import {
   LogOut,
 } from 'lucide-react';
 import { User } from '@/lib/api';
+import { useDashboard } from '@/lib/dashboard-context';
 
 interface TopbarProps {
   user: User | null;
-  onLogout: () => void;
-  onOpenAddModal: () => void;
-  onExport?: () => void;
-  exporting?: boolean;
-  onOpenMobileNav?: () => void;
-  onSearch?: (query: string) => void;
-  searchQuery?: string;
 }
 
-export const Topbar: React.FC<TopbarProps> = ({
-  user,
-  onLogout,
-  onOpenAddModal,
-  onExport,
-  exporting,
-  onOpenMobileNav,
-  onSearch,
-  searchQuery = '',
-}) => {
+export const Topbar: React.FC<TopbarProps> = ({ user }) => {
+  const { logout, openAddAccount, handleExport, exporting, setMobileNavOpen } = useDashboard();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [localQuery, setLocalQuery] = useState(searchQuery);
   const [showNotifications, setShowNotifications] = useState(false);
 
-  // Sync local query
-  useEffect(() => {
-    setLocalQuery(searchQuery);
-  }, [searchQuery]);
-
-  // Ctrl/Cmd + K to focus search
+  // Ctrl/Cmd + K to focus search (scrolls to accounts search if on accounts page)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        inputRef.current?.focus();
+        const el = document.getElementById('account-search');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          (el.querySelector('input') as HTMLInputElement)?.focus();
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Debounce search
-  useEffect(() => {
-    if (!onSearch) return;
-    const timer = setTimeout(() => {
-      if (localQuery !== searchQuery) {
-        onSearch(localQuery);
-      }
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [localQuery, searchQuery, onSearch]);
-
   return (
     <header className="sticky top-0 z-40 h-16 bg-[rgba(7,11,20,0.8)] backdrop-blur-xl border-b border-[rgba(148,163,184,0.12)]">
       <div className="h-full flex items-center gap-3 px-4 sm:px-6">
         {/* Mobile Menu Button */}
-        {onOpenMobileNav && (
-          <button
-            onClick={onOpenMobileNav}
-            className="lg:hidden p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-[rgba(148,163,184,0.08)] transition-colors"
-            aria-label="Mở menu"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-        )}
+        <button
+          onClick={() => setMobileNavOpen(true)}
+          className="lg:hidden p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-[rgba(148,163,184,0.08)] transition-colors"
+          aria-label="Mở menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
 
         {/* Mobile Brand */}
         <div className="lg:hidden flex items-center gap-2">
@@ -100,28 +71,21 @@ export const Topbar: React.FC<TopbarProps> = ({
             <input
               ref={inputRef}
               type="text"
-              value={localQuery}
-              onChange={(e) => setLocalQuery(e.target.value)}
+              onFocus={() => {
+                // Route to accounts + focus the search input
+                const el = document.getElementById('account-search');
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  (el.querySelector('input') as HTMLInputElement)?.focus();
+                }
+              }}
               placeholder="Tìm tài khoản (NOVA ID, username, ghi chú...)"
               className="w-full bg-[rgba(10,15,28,0.6)] text-[13px] text-[#F8FAFC] placeholder-[#64748B] rounded-lg pl-10 pr-16 py-2 border border-[rgba(148,163,184,0.12)] focus:outline-none focus:border-[#4D7CFF]/50 focus:shadow-glow-blue-sm transition-all duration-200"
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
-              {localQuery ? (
-                <button
-                  onClick={() => {
-                    setLocalQuery('');
-                    onSearch?.('');
-                  }}
-                  className="text-[#64748B] hover:text-[#F8FAFC] p-1"
-                  aria-label="Xóa tìm kiếm"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              ) : (
-                <span className="hidden sm:inline-block text-[10px] font-mono bg-[rgba(148,163,184,0.1)] text-[#64748B] px-1.5 py-0.5 rounded border border-[rgba(148,163,184,0.1)]">
-                  Ctrl+K
-                </span>
-              )}
+              <span className="hidden sm:inline-block text-[10px] font-mono bg-[rgba(148,163,184,0.1)] text-[#64748B] px-1.5 py-0.5 rounded border border-[rgba(148,163,184,0.1)]">
+                Ctrl+K
+              </span>
             </div>
           </div>
         </div>
@@ -177,21 +141,19 @@ export const Topbar: React.FC<TopbarProps> = ({
           </div>
 
           {/* Backup Button (Desktop) */}
-          {onExport && (
-            <button
-              onClick={onExport}
-              disabled={exporting}
-              className="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[rgba(10,15,28,0.6)] border border-[rgba(148,163,184,0.12)] text-[#94A3B8] hover:text-[#F8FAFC] hover:border-[rgba(139,92,246,0.3)] text-xs font-medium transition-all duration-200 disabled:opacity-50"
-              title="Tải backup .txt (phòng khi mất dữ liệu)"
-            >
-              <FileDown className="w-4 h-4 text-[#8B5CF6]" />
-              <span>{exporting ? 'Đang xuất...' : 'Backup .txt'}</span>
-            </button>
-          )}
+          <button
+            onClick={handleExport}
+            disabled={exporting}
+            className="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[rgba(10,15,28,0.6)] border border-[rgba(148,163,184,0.12)] text-[#94A3B8] hover:text-[#F8FAFC] hover:border-[rgba(139,92,246,0.3)] text-xs font-medium transition-all duration-200 disabled:opacity-50"
+            title="Tải backup .txt (phòng khi mất dữ liệu)"
+          >
+            <FileDown className="w-4 h-4 text-[#8B5CF6]" />
+            <span>{exporting ? 'Đang xuất...' : 'Backup .txt'}</span>
+          </button>
 
           {/* Add Account CTA */}
           <button
-            onClick={onOpenAddModal}
+            onClick={openAddAccount}
             className="btn-primary flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-[13px] shadow-glow-blue-sm"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
@@ -200,7 +162,7 @@ export const Topbar: React.FC<TopbarProps> = ({
 
           {/* Logout */}
           <button
-            onClick={onLogout}
+            onClick={logout}
             className="p-2 rounded-lg text-[#64748B] hover:text-[#F43F5E] hover:bg-[rgba(244,63,94,0.1)] transition-colors"
             title="Đăng xuất"
             aria-label="Đăng xuất"

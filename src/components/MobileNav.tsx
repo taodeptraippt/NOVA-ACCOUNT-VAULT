@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   Users,
@@ -20,55 +21,72 @@ interface MobileNavProps {
   isOpen: boolean;
   onClose: () => void;
   user: User | null;
-  activePage: string;
-  onNavigate: (page: string) => void;
   onOpenAddModal?: () => void;
   onLogout?: () => void;
 }
 
 const NAV_ITEMS = [
-  { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-[18px] h-[18px]" /> },
-  { id: 'accounts', label: 'Tài khoản', icon: <Users className="w-[18px] h-[18px]" /> },
-  { id: 'add', label: 'Thêm tài khoản', icon: <UserPlus className="w-[18px] h-[18px]" /> },
-  { id: 'backup', label: 'Backup', icon: <DatabaseBackup className="w-[18px] h-[18px]" /> },
-  { id: 'activity', label: 'Nhật ký hoạt động', icon: <Activity className="w-[18px] h-[18px]" /> },
-  { id: 'settings', label: 'Cài đặt', icon: <Settings className="w-[18px] h-[18px]" /> },
-  { id: 'users', label: 'Người dùng', icon: <ShieldCheck className="w-[18px] h-[18px]" /> },
-  { id: 'roles', label: 'Vai trò & Phân quyền', icon: <KeyRound className="w-[18px] h-[18px]" /> },
+  { id: 'dashboard', path: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-[18px] h-[18px]" /> },
+  { id: 'accounts', path: '/accounts', label: 'Tài khoản', icon: <Users className="w-[18px] h-[18px]" /> },
+  { id: 'add', path: '/accounts?add=1', label: 'Thêm tài khoản', icon: <UserPlus className="w-[18px] h-[18px]" /> },
+  { id: 'backup', path: '/backup', label: 'Backup', icon: <DatabaseBackup className="w-[18px] h-[18px]" /> },
+  { id: 'activity', path: '/activity', label: 'Nhật ký hoạt động', icon: <Activity className="w-[18px] h-[18px]" /> },
+  { id: 'settings', path: '/settings', label: 'Cài đặt', icon: <Settings className="w-[18px] h-[18px]" /> },
+  { id: 'users', path: '/users', label: 'Người dùng', icon: <ShieldCheck className="w-[18px] h-[18px]" /> },
+  { id: 'roles', path: '/roles', label: 'Vai trò & Phân quyền', icon: <KeyRound className="w-[18px] h-[18px]" /> },
 ];
 
 const BOTTOM_NAV = [
-  { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
-  { id: 'accounts', label: 'Tài khoản', icon: <Users className="w-5 h-5" /> },
-  { id: 'backup', label: 'Backup', icon: <DatabaseBackup className="w-5 h-5" /> },
-  { id: 'activity', label: 'Hoạt động', icon: <Activity className="w-5 h-5" /> },
-  { id: 'more', label: 'Thêm', icon: <ShieldCheck className="w-5 h-5" /> },
+  { id: 'dashboard', path: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
+  { id: 'accounts', path: '/accounts', label: 'Tài khoản', icon: <Users className="w-5 h-5" /> },
+  { id: 'backup', path: '/backup', label: 'Backup', icon: <DatabaseBackup className="w-5 h-5" /> },
+  { id: 'activity', path: '/activity', label: 'Hoạt động', icon: <Activity className="w-5 h-5" /> },
+  { id: 'more', path: '', label: 'Thêm', icon: <ShieldCheck className="w-5 h-5" /> },
 ];
 
 export const MobileNav: React.FC<MobileNavProps> = ({
   isOpen,
   onClose,
   user,
-  activePage,
-  onNavigate,
   onOpenAddModal,
   onLogout,
 }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Derive active page from current route
+  const activePage =
+    pathname === '/' || pathname === '/dashboard'
+      ? 'dashboard'
+      : pathname === '/accounts'
+      ? 'accounts'
+      : pathname === '/backup'
+      ? 'backup'
+      : pathname === '/activity'
+      ? 'activity'
+      : pathname === '/settings'
+      ? 'settings'
+      : pathname === '/users'
+      ? 'users'
+      : pathname === '/roles'
+      ? 'roles'
+      : '';
+
   const handleNav = (id: string) => {
-    if (id === 'add' && onOpenAddModal) {
-      onOpenAddModal();
-      onClose();
-      return;
-    }
     if (id === 'logout' && onLogout) {
       onLogout();
       onClose();
       return;
     }
-    onNavigate(id);
-    if (id !== 'more') {
+    if (id === 'more') {
       onClose();
+      return;
     }
+    const item = NAV_ITEMS.find((n) => n.id === id) || BOTTOM_NAV.find((n) => n.id === id);
+    if (item && item.path) {
+      router.push(item.path);
+    }
+    onClose();
   };
 
   return (
@@ -219,7 +237,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
                 key={item.id}
                 onClick={() => {
                   if (item.id === 'more') {
-                    onNavigate('more');
+                    onClose();
                     return;
                   }
                   handleNav(item.id);

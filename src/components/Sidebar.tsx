@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   Users,
@@ -14,39 +15,57 @@ import {
   Vault,
 } from 'lucide-react';
 import { User } from '@/lib/api';
+import { useDashboard } from '@/lib/dashboard-context';
 
 interface SidebarProps {
   user: User | null;
-  activePage: string;
-  onNavigate: (page: string) => void;
   onOpenAddModal?: () => void;
 }
 
 const NAV_ITEMS = [
-  { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-[18px] h-[18px]" /> },
-  { id: 'accounts', label: 'Tài khoản', icon: <Users className="w-[18px] h-[18px]" /> },
-  { id: 'add', label: 'Thêm tài khoản', icon: <UserPlus className="w-[18px] h-[18px]" /> },
-  { id: 'backup', label: 'Backup', icon: <DatabaseBackup className="w-[18px] h-[18px]" /> },
-  { id: 'activity', label: 'Nhật ký hoạt động', icon: <Activity className="w-[18px] h-[18px]" /> },
-  { id: 'settings', label: 'Cài đặt', icon: <Settings className="w-[18px] h-[18px]" /> },
-  { id: 'users', label: 'Người dùng', icon: <ShieldCheck className="w-[18px] h-[18px]" /> },
-  { id: 'roles', label: 'Vai trò & Phân quyền', icon: <KeyRound className="w-[18px] h-[18px]" /> },
+  { id: 'dashboard', path: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-[18px] h-[18px]" /> },
+  { id: 'accounts', path: '/accounts', label: 'Tài khoản', icon: <Users className="w-[18px] h-[18px]" /> },
+  { id: 'add', path: '/accounts?add=1', label: 'Thêm tài khoản', icon: <UserPlus className="w-[18px] h-[18px]" /> },
+  { id: 'backup', path: '/backup', label: 'Backup', icon: <DatabaseBackup className="w-[18px] h-[18px]" /> },
+  { id: 'activity', path: '/activity', label: 'Nhật ký hoạt động', icon: <Activity className="w-[18px] h-[18px]" /> },
+  { id: 'settings', path: '/settings', label: 'Cài đặt', icon: <Settings className="w-[18px] h-[18px]" /> },
+  { id: 'users', path: '/users', label: 'Người dùng', icon: <ShieldCheck className="w-[18px] h-[18px]" /> },
+  { id: 'roles', path: '/roles', label: 'Vai trò & Phân quyền', icon: <KeyRound className="w-[18px] h-[18px]" /> },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({
-  user,
-  activePage,
-  onNavigate,
-  onOpenAddModal,
-}) => {
+export const Sidebar: React.FC<SidebarProps> = ({ user, onOpenAddModal }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { logout } = useDashboard();
   const [profileOpen, setProfileOpen] = useState(false);
 
+  // Derive active page from current route
+  const activePage =
+    pathname === '/'
+      ? 'dashboard'
+      : pathname === '/accounts'
+      ? 'accounts'
+      : pathname === '/backup'
+      ? 'backup'
+      : pathname === '/activity'
+      ? 'activity'
+      : pathname === '/settings'
+      ? 'settings'
+      : pathname === '/users'
+      ? 'users'
+      : pathname === '/roles'
+      ? 'roles'
+      : '';
+
   const handleNav = (id: string) => {
-    if (id === 'add' && onOpenAddModal) {
-      onOpenAddModal();
+    if (id === 'add') {
+      if (onOpenAddModal) onOpenAddModal();
       return;
     }
-    onNavigate(id);
+    const item = NAV_ITEMS.find((n) => n.id === id);
+    if (item) {
+      router.push(item.path);
+    }
   };
 
   return (
@@ -167,7 +186,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               onClick={() => {
                 setProfileOpen(false);
-                onNavigate('settings');
+                router.push('/settings');
               }}
               className="w-full text-left px-3 py-2 rounded-lg text-[13px] text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-[rgba(148,163,184,0.08)] transition-colors"
             >
@@ -176,7 +195,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               onClick={() => {
                 setProfileOpen(false);
-                onNavigate('logout');
+                logout();
               }}
               className="w-full text-left px-3 py-2 rounded-lg text-[13px] text-[#F43F5E] hover:bg-[rgba(244,63,94,0.1)] transition-colors"
             >
