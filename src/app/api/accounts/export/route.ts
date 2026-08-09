@@ -1,3 +1,5 @@
+﻿export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { getAllAccountsWithPasswords } from '@/lib/account_service';
@@ -7,31 +9,36 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ detail: 'Not authenticated' }, { status: 401 });
 
   const accounts = getAllAccountsWithPasswords();
-
-  let content = '═══════════════════════════════════════════\n';
-  content += '  NOVA ACCOUNT VAULT — BACKUP (Auto Export)\n';
-  content += `  Ngày xuất: ${new Date().toLocaleString('vi-VN')}\n`;
-  content += `  Tổng số tài khoản: ${accounts.length}\n`;
-  content += '═══════════════════════════════════════════\n\n';
-
-  accounts.forEach((a, idx) => {
-    content += `[${a.nova_id}] — ${a.status}\n`;
-    content += `  Username : ${a.username}\n`;
-    content += `  Password : ${a.password}\n`;
-    content += `  Ghi chú  : ${a.notes || '(trống)'}\n`;
-    content += `  Ngày tạo : ${a.created_at}\n`;
-    content += `-----------------------------------------------\n`;
-  });
+  const lines: string[] = [];
+  lines.push('════════════════════════════════════════════════════════════');
+  lines.push('  NOVA ACCOUNT VAULT — BACKUP (Auto Export)');
+  lines.push('════════════════════════════════════════════════════════════');
+  lines.push('  Ngày xuất: ' + new Date().toLocaleString('vi-VN'));
+  lines.push('  Tổng số tài khoản: ' + accounts.length);
+  lines.push('════════════════════════════════════════════════════════════');
+  lines.push('');
 
   if (accounts.length === 0) {
-    content += 'Chưa có tài khoản nào trong vault.\n';
+    lines.push('Chưa có tài khoản nào trong vault.');
+  } else {
+    accounts.forEach((account, idx) => {
+      lines.push(`[${idx + 1}] ${account.nova_id} — ${account.status}`);
+      lines.push('      Username: ' + account.username);
+      lines.push('      Password: ' + account.password);
+      lines.push('      Notes: ' + (account.notes || '(không có)'));
+      lines.push('      Created: ' + account.created_at);
+      lines.push('');
+    });
   }
 
-  const filename = `nova_vault_backup_${new Date().toISOString().slice(0, 10)}.txt`;
-  return new NextResponse(content, {
+  const text = lines.join('\n');
+  const filename = 'nova_vault_backup_' + new Date().toISOString().slice(0, 10) + '.txt';
+
+  return new NextResponse(text, {
+    status: 200,
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
-      'Content-Disposition': `attachment; filename="${filename}"`,
+      'Content-Disposition': 'attachment; filename="' + filename + '"',
     },
   });
 }

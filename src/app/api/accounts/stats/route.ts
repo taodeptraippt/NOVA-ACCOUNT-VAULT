@@ -1,3 +1,5 @@
+﻿export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { getAccountStats } from '@/lib/account_service';
@@ -8,3 +10,4 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json(getAccountStats());
 }
+

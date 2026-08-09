@@ -1,3 +1,5 @@
+﻿export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { generateStrongPassword } from '@/lib/password';
@@ -8,3 +10,4 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ password: generateStrongPassword() });
 }
+
