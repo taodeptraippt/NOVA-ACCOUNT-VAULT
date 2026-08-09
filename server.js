@@ -12,6 +12,27 @@ const { execSync, spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+// ─────────────────────────────────────────────────────────────
+// AUTO-SYNC FROM GITHUB (Pterodactyl/Pikamc panel)
+//
+// The panel only lets us edit the startup command, not run a
+// terminal. On startup we pull the latest code from GitHub and
+// hard-reset any local changes so the app always runs the newest
+// committed version. Local DB (data/) is gitignored and untouched.
+//
+// To disable auto-sync, set env AUTO_SYNC=0 in the panel Startup.
+// ─────────────────────────────────────────────────────────────
+if (process.env.AUTO_SYNC !== '0') {
+  try {
+    console.log('[server.js] Syncing code from GitHub (git fetch + reset --hard)...');
+    execSync('git fetch origin', { stdio: 'inherit', cwd: __dirname });
+    execSync('git reset --hard origin/main', { stdio: 'inherit', cwd: __dirname });
+    console.log('[server.js] Code synced to origin/main.');
+  } catch (err) {
+    console.warn('[server.js] Git sync failed (continuing anyway):', err.message);
+  }
+}
+
 // On Pterodactyl the allocated external port is exposed via SERVER_PORT.
 // Prefer SERVER_PORT, then PORT, then default 3000.
 const PORT = process.env.SERVER_PORT || process.env.PORT || 3000;
